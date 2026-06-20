@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<div th:fragment="*">
+    <!-- templates/fragments/chatbot.html -->
+<div id="chatbot-wrapper">
+    <div id="chat-toggle" onclick="toggleChat()">💬</div>
+
+    <div id="chatbox">
+        <div id="chat-header">FinBot – Your Finance Assistant</div>
+        <div id="chat-body">
+            <div id="chat-history"></div>
+            <input type="text" id="chat-input" placeholder="Ask about finance..." onkeypress="handleKey(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    #chatbot-wrapper {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+    }
+
+    #chat-toggle {
+        background: #333;
+        color: white;
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    #chatbox {
+        display: none;
+        flex-direction: column;
+        width: 300px;
+        height: 400px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        margin-bottom: 10px;
+    }
+
+    #chat-header {
+        background: #1976d2;
+        color: white;
+        padding: 12px;
+        font-weight: bold;
+    }
+
+    #chat-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    #chat-history {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f4f4f4;
+        font-size: 14px;
+    }
+
+    #chat-input {
+        padding: 10px;
+        border: none;
+        border-top: 1px solid #ccc;
+        width: calc(100% - 60px);
+        outline: none;
+    }
+
+    #chat-body button {
+        width: 60px;
+        border: none;
+        background: #1976d2;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function toggleChat() {
+        const chatbox = document.getElementById('chatbox');
+        chatbox.style.display = chatbox.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function handleKey(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        const history = document.getElementById('chat-history');
+        history.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+        input.value = '';
+
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        })
+        .then(res => res.text())
+        .then(reply => {
+            history.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
+            history.scrollTop = history.scrollHeight;
+        })
+        .catch(() => {
+            history.innerHTML += `<div><strong>Bot:</strong> Error fetching response.</div>`;
+        });
+    }
+</script>
+</div>
+</body>
+</html>
