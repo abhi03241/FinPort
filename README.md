@@ -318,25 +318,34 @@ flowchart LR
 
 ### 🔑 Environment Variables
 
-Configure these in `FinPort/src/main/resources/application.properties` (or override via environment variables / `--key=value` args).
+All sensitive values are read from environment variables — **never commit secrets to the repo**.
 
-```properties
-# --- MySQL DataSource ---
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.url=jdbc:mysql://localhost:3306/finport_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+| Variable | Default | Description |
+|---|---|---|
+| `DB_URL` | `jdbc:mysql://localhost:3306/finport_db` | MySQL JDBC URL |
+| `DB_USERNAME` | `root` | MySQL username |
+| `DB_PASSWORD` | *(empty)* | MySQL password — **required** |
+| `OPENAI_API_KEY` | *(empty)* | OpenAI API key — required only for the chatbot |
 
-# --- JPA / Hibernate ---
-spring.jpa.show-sql=true
-spring.jpa.hibernate.ddl-auto=update
+Set them in your shell before running:
 
-# --- OpenAI (chatbot) ---
-openai.api.key=your_openai_api_key
-openai.api.url=https://api.openai.com/v1/chat/completions
+```bash
+export DB_URL=jdbc:mysql://localhost:3306/finport_db
+export DB_USERNAME=root
+export DB_PASSWORD=your_password
+export OPENAI_API_KEY=sk-...
+./mvnw spring-boot:run
 ```
 
-> ⚠️ The chatbot is optional — if `openai.api.key` is left empty, the rest of the app continues to work; only the chatbot endpoint will fail.
+For local development you can also create `FinPort/src/main/resources/application-local.properties` (already in `.gitignore`) and override values there.
+
+```properties
+# application-local.properties  (NOT committed)
+spring.datasource.password=your_local_password
+openai.api.key=your_local_openai_key
+```
+
+> ⚠️ The chatbot is optional — if `OPENAI_API_KEY` is empty, the rest of the app continues to work; only the chatbot endpoint will fail.
 
 ## 🛠️ Getting Started
 
@@ -356,8 +365,8 @@ cd FinPort
 # 2. Create the database in MySQL
 mysql -u root -p -e "CREATE DATABASE finport_db;"
 
-# 3. Update src/main/resources/application.properties
-#    with your MySQL username, password, and OpenAI key.
+# 3. Set environment variables (DB_PASSWORD, OPENAI_API_KEY, …)
+#    See "Environment Variables" below.
 
 # 4. Run with Maven (uses the included mvnw wrapper)
 ./mvnw spring-boot:run
