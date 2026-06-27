@@ -43,4 +43,8 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public void deleteById(Long id) {
+        categoryRepository.deleteById(id);
+    }
+
 }

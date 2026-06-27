@@ -31,6 +31,14 @@ public class TransactionService {
         return transactionRepository.findById(id).orElse(null);
     }
 
+    public Transaction save(Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+
+    public void deleteById(Long id) {
+        transactionRepository.deleteById(id);
+    }
+
     // Fetch total expenses for month, week, year
     public Map<String, Double> getTotalExpenses() {
         Map<String, Double> totalExpenses = new HashMap<>();
