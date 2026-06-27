@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,6 +26,15 @@ public class TransactionService {
     public Page<Transaction> findTransactions(String description, BigDecimal amount, String amountFilter,
                                               LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return transactionRepository.findFilteredTransactions(description, amount, amountFilter, startDate, endDate, pageable);
+    }
+
+    /**
+     * Returns every transaction in the system. Used by AI/analytics endpoints
+     * that operate across the full history. Once transactions gain a user FK,
+     * switch callers to a per-user variant.
+     */
+    public List<Transaction> findAll() {
+        return transactionRepository.findAll();
     }
 
     public Transaction getTransactionById(Long id) {
