@@ -1,0 +1,14 @@
+# Copy this file to `application-local.properties` (git-ignored) and fill in values.
+# Spring Boot picks up application-local.properties automatically when the active
+# profile is `local` (set SPRING_PROFILES_ACTIVE=local).
+
+# --- Database ---
+spring.datasource.url=jdbc:mysql://localhost:3306/artha_db
+spring.datasource.username=root
+spring.datasource.password=
+
+# --- JPA ---
+spring.jpa.show-sql=true
+
+# --- OpenAI (optional, only needed for chatbot) ---
+openai.api.key=

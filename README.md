@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>📈 FinPort: Personal Financial Portfolio Manager 📈</h1>
+  <h1>📈 Artha: Personal Finance & Portfolio Manager 📈</h1>
 <h3>
   ✨ <a href="http://13.201.204.129:8080/index">Live Project</a>
 </h3>
@@ -30,7 +30,9 @@
 
 ## ⭐ About the Project
 
-FinPort is a comprehensive and intelligent personal financial portfolio manager web application built using Spring Boot and Thymeleaf. It allows users to manage their income, expenses, savings, EMIs, loans, taxes, and more—all in one place. It simplifies finance tracking with powerful visual insights and reminders.
+Artha (formerly FinPort) is a comprehensive and intelligent personal financial portfolio manager web application built using Spring Boot and Thymeleaf. It allows users to manage their income, expenses, savings, EMIs, loans, taxes, and more—all in one place. It simplifies finance tracking with powerful visual insights and reminders.
+
+> Artha = Sanskrit for *wealth / meaning*.
 
 ### 📷 Screenshots
 
@@ -357,22 +359,54 @@ openai.api.key=your_local_openai_key
 
 ### ⚙️ Installation
 
+**Option A — Docker (recommended)**
+
+```bash
+git clone https://github.com/abhi03241/FinPort.git
+cd FinPort
+docker compose up --build
+```
+
+This starts MySQL 8 and the app. Visit `http://localhost:8080/index`.
+
+**Option B — Local Maven**
+
 ```bash
 # 1. Clone the repo
 git clone https://github.com/abhi03241/FinPort.git
 cd FinPort
 
 # 2. Create the database in MySQL
-mysql -u root -p -e "CREATE DATABASE finport_db;"
+mysql -u root -p -e "CREATE DATABASE artha_db;"
 
 # 3. Set environment variables (DB_PASSWORD, OPENAI_API_KEY, …)
 #    See "Environment Variables" below.
 
 # 4. Run with Maven (uses the included mvnw wrapper)
-./mvnw spring-boot:run
+cd FinPort && ./mvnw spring-boot:run
 ```
 
 Visit: `http://localhost:8080/index`
+
+### ✅ Running tests
+
+```bash
+cd FinPort
+SPRING_PROFILES_ACTIVE=test ./mvnw test
+```
+
+Tests use an in-memory H2 database (MySQL compatibility mode), so no external MySQL is required.
+
+### 🐳 Docker image only
+
+```bash
+cd FinPort
+docker build -t artha:latest .
+docker run --rm -p 8080:8080 \
+  -e DB_URL=jdbc:mysql://host.docker.internal:3306/artha_db \
+  -e DB_USERNAME=root -e DB_PASSWORD=secret \
+  artha:latest
+```
 
 ## 📍 Deployment
 

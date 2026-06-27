@@ -7,3 +7,9 @@ target/
 .DS_Store
 *.log
 application-local.properties
+.env
+.env.local
+node_modules/
+dist/
+build/
+.vscode/
