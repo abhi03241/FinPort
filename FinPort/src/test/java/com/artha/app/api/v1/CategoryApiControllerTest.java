@@ -2,10 +2,12 @@ package com.artha.app.api.v1;
 
 import com.artha.app.models.Category;
 import com.artha.app.services.CategoryService;
+import com.artha.app.testsupport.SecurityTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = CategoryApiController.class)
+@Import(SecurityTestSupport.class)
 @ActiveProfiles("test")
 class CategoryApiControllerTest {
 

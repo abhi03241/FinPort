@@ -1,9 +1,13 @@
 package com.artha.app.configuration;
 
 import com.artha.app.api.dto.ErrorResponse;
+import com.artha.app.security.JwtAuthenticationFilter;
+import com.artha.app.security.OAuth2SuccessHandler;
 import com.artha.app.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -11,10 +15,11 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -33,10 +38,6 @@ public class SecurityConfig {
         return auth;
     }
 
-    /**
-     * Returns a JSON 401 for unauthenticated API requests instead of redirecting
-     * to the HTML login page (which would break SPA clients).
-     */
     @Bean
     public AuthenticationEntryPoint apiAuthenticationEntryPoint(ObjectMapper objectMapper) {
         return (request, response, authException) -> {
@@ -48,30 +49,28 @@ public class SecurityConfig {
         };
     }
 
+    /**
+     * Base security chain — form login (Thymeleaf) + JWT (API) + JSON 401 for /api/**.
+     * OAuth2 bits are added by {@link OAuth2SecurityConfig} only when a
+     * {@link ClientRegistrationRepository} bean is present.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             AuthenticationSuccessHandler customAuthenticationSuccessHandler,
-            AuthenticationEntryPoint apiAuthenticationEntryPoint) throws Exception {
+            AuthenticationEntryPoint apiAuthenticationEntryPoint,
+            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .authorizeHttpRequests(config -> config
-                        // Public static + landing
                         .requestMatchers("/css/**", "/assets/**", "/js/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/showRegistrationForm", "/processRegistration").permitAll()
-                        // OpenAPI / Swagger
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Actuator (Prometheus scraping etc.)
                         .requestMatchers("/actuator/**").permitAll()
-                        // API auth (future JWT endpoint; permitted now so the SPA can hit it)
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        // All other /api/** require an authenticated user (session cookie for now)
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/me").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        // Everything else
                         .anyRequest().authenticated())
-                // CSRF: keep protection on server-rendered form endpoints,
-                // exempt the REST API and actuator (stateless-friendly).
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers(
                                 new AntPathRequestMatcher("/api/**"),
                                 new AntPathRequestMatcher("/actuator/**")))
@@ -79,21 +78,20 @@ public class SecurityConfig {
                         .defaultAuthenticationEntryPointFor(
                                 apiAuthenticationEntryPoint,
                                 new AntPathRequestMatcher("/api/**")))
+                .httpBasic(b -> b.disable())
                 .formLogin(form -> form
                         .loginPage("/showLoginPage")
                         .loginProcessingUrl("/authenticateTheUser")
                         .successHandler(customAuthenticationSuccessHandler)
                         .permitAll())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .permitAll()
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/showLoginPage")
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")));
 
-        // Sessions are created on demand (Thymeleaf form login) but the API
-        // works without one when JWT lands in Phase 7.
         http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
-
         return http.build();
     }
 }

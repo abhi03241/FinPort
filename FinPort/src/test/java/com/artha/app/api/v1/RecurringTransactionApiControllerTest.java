@@ -7,11 +7,13 @@ import com.artha.app.models.Transaction;
 import com.artha.app.models.User;
 import com.artha.app.services.CategoryService;
 import com.artha.app.services.RecurringTransactionService;
+import com.artha.app.testsupport.SecurityTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = RecurringTransactionApiController.class)
+@Import(SecurityTestSupport.class)
 @ActiveProfiles("test")
 class RecurringTransactionApiControllerTest {
 

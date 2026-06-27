@@ -18,11 +18,12 @@
         </encoder>
     </appender>
 
-    <springProfile name="local,default">
+    <springProfile name="local,default,test">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
         <logger name="com.artha.app" level="DEBUG"/>
+        <logger name="org.springframework.security" level="DEBUG"/>
     </springProfile>
 
     <springProfile name="prod,production,json">

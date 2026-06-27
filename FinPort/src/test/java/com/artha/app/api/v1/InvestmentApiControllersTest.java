@@ -6,6 +6,7 @@ import com.artha.app.services.AssetService;
 import com.artha.app.services.HoldingService;
 import com.artha.app.services.PortfolioService;
 import com.artha.app.services.pricing.PricingService;
+import com.artha.app.testsupport.SecurityTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = {HoldingApiController.class, AssetApiController.class, PortfolioApiController.class})
-@Import(AssetServiceBridge.class)
+@Import({AssetServiceBridge.class, SecurityTestSupport.class})
 @ActiveProfiles("test")
 class InvestmentApiControllersTest {
 

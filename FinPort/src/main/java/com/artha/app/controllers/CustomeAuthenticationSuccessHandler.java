@@ -12,11 +12,13 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 
 @Controller
+@Primary
 public class CustomeAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     UserService userService;
     ClientService clientService;

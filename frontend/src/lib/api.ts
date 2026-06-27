@@ -1,13 +1,12 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 
 /**
- * Axios instance for the Artha API.
- * Sends cookies with every request (session-based auth for now;
- * Phase 7 swaps this for JWT bearer tokens).
+ * Single shared axios instance for the Artha API. Authentication is handled
+ * by the AuthProvider via request/response interceptors installed in
+ * `useAuth.tsx` — this file just owns the base URL and JSON defaults.
  */
 export const api: AxiosInstance = axios.create({
   baseURL: "/api/v1",
-  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { AxiosError } from "axios";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginWithTokens } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +25,23 @@ export default function LoginPage() {
       setBusy(false);
     }
   };
+
+  // OAuth2 (Google) callback: ?accessToken=...&refreshToken=... in the URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const access = params.get("accessToken");
+    const refresh = params.get("refreshToken");
+    if (access) {
+      void (async () => {
+        try {
+          await loginWithTokens(access, refresh ?? "");
+          navigate("/", { replace: true });
+        } catch {
+          setError("OAuth login failed");
+        }
+      })();
+    }
+  }, [loginWithTokens, navigate]);
 
   return (
     <div className="min-h-screen grid place-items-center bg-gradient-to-br from-brand-50 to-slate-100">
@@ -77,6 +94,19 @@ export default function LoginPage() {
         >
           {busy ? "Signing in…" : "Sign in"}
         </button>
+
+        <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex-1 h-px bg-slate-200" />
+          or
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
+        <a
+          href="/oauth2/authorization/google"
+          className="block w-full text-center bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2 rounded-md"
+        >
+          Continue with Google
+        </a>
 
         <p className="text-xs text-slate-400 mt-4 text-center">
           Personal finance & portfolio manager
